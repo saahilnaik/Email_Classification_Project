@@ -139,7 +139,7 @@ if __name__ == "__main__":
     logger.info("="*70)
     logger.info("Email Classification API - Starting Server")
     logger.info("="*70)
-    logger.info(f"Server Binding: {API_HOST}:{API_PORT} (listening on all interfaces)")
+    logger.info(f"Server Binding: {API_HOST}:{API_PORT} (localhost only)")
 
     # Test model loading before starting server
     try:
@@ -165,15 +165,6 @@ if __name__ == "__main__":
     logger.info(f"   --> http://localhost:{API_PORT}")
     logger.info(f"   --> http://127.0.0.1:{API_PORT}")
     logger.info("   This is your testing interface with a beautiful UI.")
-    
-    # Get local IP for network access instructions
-    import socket
-    try:
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        logger.info(f"   --> http://{local_ip}:{API_PORT} (Network access)")
-    except Exception:
-        logger.info(f"   --> http://YOUR_IP:{API_PORT} (Network access)")
 
     logger.info("")
     logger.info("2. SWAGGER UI DOCUMENTATION (Interactive API docs):")
@@ -196,11 +187,6 @@ if __name__ == "__main__":
     logger.info("   View all available endpoints and their descriptions.")
 
     logger.info("="*70)
-    
-    if API_HOST == "0.0.0.0":
-        logger.info("Note: Server binds to 0.0.0.0 to accept connections from all")
-        logger.info("      network interfaces. Access via localhost or your IP, NOT 0.0.0.0")
-    
     logger.info("="*70)
 
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)

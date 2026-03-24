@@ -11,7 +11,7 @@ BERT_MODEL_PATH = os.getenv("BERT_MODEL_PATH", "models/bert_classifier")
 BERT_LABEL_ENCODER_PATH = os.getenv("BERT_LABEL_ENCODER_PATH", "models/bert_label_encoder.pkl")
 
 # API Configuration
-API_HOST = os.getenv("API_HOST", "0.0.0.0")
+API_HOST = os.getenv("API_HOST", "127.0.0.1")  # localhost only
 API_PORT = int(os.getenv("API_PORT", "8000"))
 API_RELOAD = os.getenv("API_RELOAD", "True").lower() == "true"
 
