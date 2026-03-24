@@ -80,29 +80,19 @@ Email Classification Project/
    python -m spacy download en_core_web_sm
    ```
 
-## Usage
+## 🚨 CRITICAL: Correct URLs to Use
 
-### Running the API Server
+**❌ NEVER use this (INVALID):** `http://0.0.0.0:8000`
+**✅ Use these instead:**
 
-Start the FastAPI server:
-```bash
-python app.py
-```
+### Local Access (same device):
+- `http://localhost:8000`
+- `http://127.0.0.1:8000`
 
-### Accessing the API
+### Network Access (other devices):
+- `http://192.168.1.9:8000` (your current IP address)
 
-**Local Access (same device):**
-- http://localhost:8000
-- http://127.0.0.1:8000
-
-**Network Access (other devices on your network):**
-- http://192.168.1.9:8000 (your current IP address)
-
-**Important Notes:**
-- The server binds to `0.0.0.0` (all interfaces) by default
-- Do NOT use `http://0.0.0.0:8000` in browsers - this is invalid
-- For network access, use your actual IP address (192.168.1.9)
-- Make sure your firewall allows connections on port 8000
+**Why 0.0.0.0 doesn't work:** `0.0.0.0` is the server's listening address (bind to all interfaces), not a browseable URL.
 
 ### API Endpoint
 
