@@ -71,4 +71,7 @@ def health_check():
 
 if __name__ == "__main__":
     logger.info(f"Starting API server on {API_HOST}:{API_PORT}")
+    logger.info(f"Access the API at: http://localhost:{API_PORT} or http://127.0.0.1:{API_PORT}")
+    if API_HOST == "0.0.0.0":
+        logger.info(f"For network access, use your machine's IP address: http://YOUR_IP:{API_PORT}")
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)

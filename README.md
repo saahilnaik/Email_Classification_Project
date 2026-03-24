@@ -89,7 +89,11 @@ Start the FastAPI server:
 python app.py
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at:
+- **Local access**: http://localhost:8000 or http://127.0.0.1:8000
+- **Network access**: http://YOUR_IP_ADDRESS:8000 (if you want to access from other devices)
+
+**Important**: Do not use `http://0.0.0.0:8000` in your browser. `0.0.0.0` is the server's listening address, but you access it via `localhost` or `127.0.0.1`.
 
 ### API Endpoint
 
