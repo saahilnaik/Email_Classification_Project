@@ -80,7 +80,30 @@ Email Classification Project/
    python -m spacy download en_core_web_sm
    ```
 
-## 🚨 CRITICAL: Correct URLs to Use
+## � Running the API Server
+
+Start the FastAPI server:
+```bash
+python app.py
+```
+
+When the server starts, you'll see clear access URLs like:
+```
+🚀============================================================
+📡 SERVER BINDING: 0.0.0.0:8000 (listening on all interfaces)
+🚀============================================================
+✅ ACCESS URLs:
+   🏠 Local:     http://localhost:8000
+   🏠 Local:     http://127.0.0.1:8000
+   🌐 Network:   http://192.168.1.9:8000
+🚀============================================================
+📖 API Documentation:
+   📄 Swagger UI: http://localhost:8000/docs
+   📄 ReDoc:      http://localhost:8000/redoc
+🚀============================================================
+```
+
+## �🚨 CRITICAL: Correct URLs to Use
 
 **❌ NEVER use this (INVALID):** `http://0.0.0.0:8000`
 **✅ Use these instead:**
@@ -94,7 +117,17 @@ Email Classification Project/
 
 **Why 0.0.0.0 doesn't work:** `0.0.0.0` is the server's listening address (bind to all interfaces), not a browseable URL.
 
-### API Endpoint
+### API Endpoints
+
+When you visit `http://localhost:8000`, you'll see an overview of all available endpoints:
+
+- **GET /** - API information and available endpoints
+- **GET /health** - Health check endpoint  
+- **POST /classify_email** - Classify email and mask PII
+- **GET /docs** - Interactive API documentation (Swagger UI)
+- **GET /redoc** - Alternative API documentation
+
+#### Classify Email Endpoint
 
 **POST** `/classify_email`
 

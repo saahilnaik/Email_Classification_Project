@@ -64,27 +64,57 @@ def classify(email: EmailRequest):
         logger.error(f"Classification error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error during classification")
 
+@app.get("/")
+def root():
+    """Root endpoint with API information."""
+    return {
+        "message": "Email Classification API is running!",
+        "version": "1.0.0",
+        "endpoints": {
+            "GET /": "This information page",
+            "GET /health": "Health check",
+            "POST /classify_email": "Classify email and mask PII",
+            "GET /docs": "Interactive API documentation (Swagger UI)",
+            "GET /redoc": "Alternative API documentation"
+        },
+        "usage": {
+            "local_access": f"http://localhost:{API_PORT}",
+            "network_access": f"http://YOUR_IP:{API_PORT}",
+            "docs": f"http://localhost:{API_PORT}/docs"
+        }
+    }
+
 @app.get("/health")
 def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    logger.info(f"Starting API server on {API_HOST}:{API_PORT}")
-    logger.info(f"🚀 Local access: http://localhost:{API_PORT} or http://127.0.0.1:{API_PORT}")
+    logger.info("🚀" + "="*60)
+    logger.info(f"📡 SERVER BINDING: {API_HOST}:{API_PORT} (listening on all interfaces)")
+    logger.info("🚀" + "="*60)
+
+    logger.info("✅ ACCESS URLs:")
+    logger.info(f"   🏠 Local:     http://localhost:{API_PORT}")
+    logger.info(f"   🏠 Local:     http://127.0.0.1:{API_PORT}")
 
     # Get local IP for network access instructions
     import socket
     try:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
-        logger.info(f"🌐 Network access: http://{local_ip}:{API_PORT}")
+        logger.info(f"   🌐 Network:   http://{local_ip}:{API_PORT}")
     except Exception:
-        logger.info(f"🌐 For network access, use your machine's IP address: http://YOUR_IP:{API_PORT}")
+        logger.info(f"   🌐 Network:   http://YOUR_IP:{API_PORT}")
+
+    logger.info("🚀" + "="*60)
+    logger.info("📖 API Documentation:")
+    logger.info(f"   📄 Swagger UI: http://localhost:{API_PORT}/docs")
+    logger.info(f"   📄 ReDoc:      http://localhost:{API_PORT}/redoc")
+    logger.info("🚀" + "="*60)
 
     if API_HOST == "0.0.0.0":
-        logger.info("✅ Server is bound to all interfaces - accessible from network devices")
-        logger.warning("⚠️  IMPORTANT: Do NOT use http://0.0.0.0:8000 in your browser!")
-        logger.warning("⚠️  Use localhost:8000 or your IP address instead!")
+        logger.info("ℹ️  Note: Server binds to 0.0.0.0 (all interfaces) for network access")
+        logger.info("ℹ️  But you access it via localhost or your IP address, NOT 0.0.0.0")
 
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)
