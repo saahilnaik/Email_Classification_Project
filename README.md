@@ -89,11 +89,20 @@ Start the FastAPI server:
 python app.py
 ```
 
-The API will be available at:
-- **Local access**: http://localhost:8000 or http://127.0.0.1:8000
-- **Network access**: http://YOUR_IP_ADDRESS:8000 (if you want to access from other devices)
+### Accessing the API
 
-**Important**: Do not use `http://0.0.0.0:8000` in your browser. `0.0.0.0` is the server's listening address, but you access it via `localhost` or `127.0.0.1`.
+**Local Access (same device):**
+- http://localhost:8000
+- http://127.0.0.1:8000
+
+**Network Access (other devices on your network):**
+- http://192.168.1.9:8000 (your current IP address)
+
+**Important Notes:**
+- The server binds to `0.0.0.0` (all interfaces) by default
+- Do NOT use `http://0.0.0.0:8000` in browsers - this is invalid
+- For network access, use your actual IP address (192.168.1.9)
+- Make sure your firewall allows connections on port 8000
 
 ### API Endpoint
 
@@ -220,13 +229,27 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - **BERT Model**: Higher accuracy, requires more computational resources
 - **PII Masking**: Sub-millisecond processing for typical email lengths
 
-## Troubleshooting
+### Firewall Configuration
 
-### Common Issues
+If you're having trouble accessing from other devices, you may need to:
 
-1. **Model not found**: Ensure models are trained and saved in the `models/` directory
-2. **spaCy model missing**: Run `python -m spacy download en_core_web_sm`
-3. **Port already in use**: Change the port in `app.py` or kill the process using port 8000
+**Windows Firewall:**
+1. Open Windows Defender Firewall
+2. Click "Advanced settings"
+3. Click "Inbound Rules" → "New Rule"
+4. Select "Port" → TCP → Specific port: 8000
+5. Allow the connection
+6. Name it "Email Classification API"
+
+**Or temporarily disable firewall for testing:**
+```cmd
+netsh advfirewall set allprofiles state off
+```
+
+**Re-enable firewall after testing:**
+```cmd
+netsh advfirewall set allprofiles state on
+```
 
 ### Logs
 

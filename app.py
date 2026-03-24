@@ -71,7 +71,18 @@ def health_check():
 
 if __name__ == "__main__":
     logger.info(f"Starting API server on {API_HOST}:{API_PORT}")
-    logger.info(f"Access the API at: http://localhost:{API_PORT} or http://127.0.0.1:{API_PORT}")
-    if API_HOST == "0.0.0.0":
+    logger.info(f"Local access: http://localhost:{API_PORT} or http://127.0.0.1:{API_PORT}")
+
+    # Get local IP for network access instructions
+    import socket
+    try:
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+        logger.info(f"Network access: http://{local_ip}:{API_PORT}")
+    except Exception:
         logger.info(f"For network access, use your machine's IP address: http://YOUR_IP:{API_PORT}")
+
+    if API_HOST == "0.0.0.0":
+        logger.info("Server is bound to all interfaces - accessible from network devices")
+
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)
