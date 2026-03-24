@@ -198,7 +198,17 @@ python -c "from models.baseline_model import train_baseline_model; from data.pre
 python -c "from models.bert_model import train_bert_model; from data.prepare_data import load_and_prepare_data; df = load_and_prepare_data('data/support_emails.csv'); train_bert_model(df)"
 ```
 
-### Testing Scripts
+### API Testing
+
+#### Quick Test Script
+Run the comprehensive test script to verify everything is working:
+```bash
+python test_api.py
+```
+
+This will test all endpoints including Swagger UI, email classification, and model loading.
+
+#### Manual Testing
 
 Run individual test scripts from the `notebooks/` directory:
 ```bash

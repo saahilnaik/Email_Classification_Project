@@ -2,6 +2,7 @@ import logging
 import logging.handlers
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from utils.pipeline import classify_email
 from config import API_HOST, API_PORT, API_RELOAD, LOG_LEVEL, LOG_FORMAT, LOG_FILE
@@ -28,6 +29,15 @@ app = FastAPI(
     title="Email Classification API",
     description="Classifies support emails while masking PII",
     version="1.0.0"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 class EmailRequest(BaseModel):
@@ -67,20 +77,35 @@ def classify(email: EmailRequest):
 @app.get("/")
 def root():
     """Root endpoint with API information."""
+    from config import MODEL_TYPE
+    from utils.pipeline import baseline_model, bert_model
+
+    model_status = "unknown"
+    if MODEL_TYPE == "baseline":
+        model_status = "loaded" if baseline_model is not None else "not loaded"
+    elif MODEL_TYPE == "bert":
+        model_status = "loaded" if bert_model is not None else "not loaded"
+
     return {
         "message": "Email Classification API is running!",
         "version": "1.0.0",
+        "model": {
+            "type": MODEL_TYPE,
+            "status": model_status
+        },
         "endpoints": {
             "GET /": "This information page",
             "GET /health": "Health check",
             "POST /classify_email": "Classify email and mask PII",
             "GET /docs": "Interactive API documentation (Swagger UI)",
-            "GET /redoc": "Alternative API documentation"
+            "GET /redoc": "Alternative API documentation",
+            "GET /openapi.json": "OpenAPI schema"
         },
         "usage": {
             "local_access": f"http://localhost:{API_PORT}",
             "network_access": f"http://YOUR_IP:{API_PORT}",
-            "docs": f"http://localhost:{API_PORT}/docs"
+            "docs": f"http://localhost:{API_PORT}/docs",
+            "test_email": f"POST to http://localhost:{API_PORT}/classify_email"
         }
     }
 
@@ -90,31 +115,46 @@ def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    logger.info("🚀" + "="*60)
-    logger.info(f"📡 SERVER BINDING: {API_HOST}:{API_PORT} (listening on all interfaces)")
-    logger.info("🚀" + "="*60)
+    logger.info("="*60)
+    logger.info(f"SERVER BINDING: {API_HOST}:{API_PORT} (listening on all interfaces)")
+    logger.info("="*60)
 
-    logger.info("✅ ACCESS URLs:")
-    logger.info(f"   🏠 Local:     http://localhost:{API_PORT}")
-    logger.info(f"   🏠 Local:     http://127.0.0.1:{API_PORT}")
+    # Test model loading before starting server
+    try:
+        from utils.pipeline import baseline_model, bert_model
+        from config import MODEL_TYPE
+        if MODEL_TYPE == "baseline" and baseline_model is None:
+            logger.error("Baseline model failed to load. Please check model files.")
+            exit(1)
+        elif MODEL_TYPE == "bert" and (bert_model is None):
+            logger.error("BERT model failed to load. Please check model files.")
+            exit(1)
+        logger.info(f"Model loaded successfully: {MODEL_TYPE}")
+    except Exception as e:
+        logger.error(f"Model loading error: {e}")
+        exit(1)
+
+    logger.info("ACCESS URLs:")
+    logger.info(f"  Local:     http://localhost:{API_PORT}")
+    logger.info(f"  Local:     http://127.0.0.1:{API_PORT}")
 
     # Get local IP for network access instructions
     import socket
     try:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
-        logger.info(f"   🌐 Network:   http://{local_ip}:{API_PORT}")
+        logger.info(f"  Network:   http://{local_ip}:{API_PORT}")
     except Exception:
-        logger.info(f"   🌐 Network:   http://YOUR_IP:{API_PORT}")
+        logger.info(f"  Network:   http://YOUR_IP:{API_PORT}")
 
-    logger.info("🚀" + "="*60)
-    logger.info("📖 API Documentation:")
-    logger.info(f"   📄 Swagger UI: http://localhost:{API_PORT}/docs")
-    logger.info(f"   📄 ReDoc:      http://localhost:{API_PORT}/redoc")
-    logger.info("🚀" + "="*60)
+    logger.info("="*60)
+    logger.info("API Documentation:")
+    logger.info(f"  Swagger UI: http://localhost:{API_PORT}/docs")
+    logger.info(f"  ReDoc:      http://localhost:{API_PORT}/redoc")
+    logger.info("="*60)
 
     if API_HOST == "0.0.0.0":
-        logger.info("ℹ️  Note: Server binds to 0.0.0.0 (all interfaces) for network access")
-        logger.info("ℹ️  But you access it via localhost or your IP address, NOT 0.0.0.0")
+        logger.info("Note: Server binds to 0.0.0.0 (all interfaces) for network access")
+        logger.info("But you access it via localhost or your IP address, NOT 0.0.0.0")
 
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)
