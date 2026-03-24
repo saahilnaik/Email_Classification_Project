@@ -1,0 +1,13 @@
+HEAD
+*.largefileextension filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+models/bert_output/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+models/bert_output/*.safetensors filter=lfs diff=lfs merge=lfs -text
+models/bert_output/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+14c1f09dd7b11f3b913b2a85ee3956f3781af437
+models/**/*.safetensors filter=lfs diff=lfs merge=lfs -text
+models/**/*.bin filter=lfs diff=lfs merge=lfs -text
+models/**/*.h5 filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text
+models/**/* filter=lfs diff=lfs merge=lfs -text
