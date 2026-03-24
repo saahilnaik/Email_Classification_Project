@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Classification System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background: #667eea;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #f44;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success {
+            background: #efe;
+            border: 2px solid #4f4;
+            color: #3a3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            color: #666;
+            word-break: break-word;
+        }
+
+        .entity-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin: 4px 4px 4px 0;
+        }
+
+        .entity-value {
+            background: #fff;
+            color: #333;
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .links {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .links h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .link-item {
+            margin-bottom: 15px;
+        }
+
+        .link-name {
+            font-weight: 600;
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .link-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .link-url {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+            word-break: break-all;
+            border: 1px solid #e0e0e0;
+        }
+
+        .link-url a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .link-url a:hover {
+            text-decoration: underline;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .example {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .features {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #666;
+        }
+
+        .feature-list li::before {
+            content: '✓ ';
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Email Classification System</h1>
+            <p>Classify support emails while masking personally identifiable information (PII)</p>
+        </div>
+
+        <div class="content">
+            <!-- Left Column: Testing Interface -->
+            <div class="section">
+                <h2>Test Email Classification</h2>
+
+                <div class="form-group">
+                    <label for="emailBody">Email Body:</label>
+                    <textarea id="emailBody" placeholder="Enter your email text here...&#10;&#10;Example: Hello, my name is John Doe. My email is john@example.com and phone is 123-456-7890. I need help with my account."></textarea>
+                    <div class="example">
+                        <strong>Examples of recognised entities:</strong><br>
+                        • Names: John Doe, Jane Smith<br>
+                        • Emails: john@example.com<br>
+                        • Phone: 123-456-7890, +1-800-555-0123<br>
+                        • DOB: 01/01/1990, 01-01-1990
+                    </div>
+                </div>
+
+                <button onclick="classifyEmail()">Classify Email</button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing email...</p>
+                </div>
+
+                <div class="error" id="error"></div>
+                <div class="success" id="success"></div>
+
+                <!-- Results -->
+                <div id="results" style="display: none; margin-top: 30px;">
+                    <h3 style="margin-bottom: 20px; font-size: 1.3em; color: #333;">Classification Results</h3>
+
+                    <div class="result-item">
+                        <div class="result-label">Category</div>
+                        <div class="result-value" id="resultCategory" style="font-size: 1.2em; color: #667eea; font-weight: 600;"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Original Email</div>
+                        <div class="result-value" id="resultOriginal"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Masked Email (PII Hidden)</div>
+                        <div class="result-value" id="resultMasked" style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-top: 8px;"></div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">Detected Entities</div>
+                        <div id="resultEntities"></div>
+                    </div>
+
+                    <div class="stats" id="statsContainer"></div>
+                </div>
+
+                <div class="features">
+                    <h3>✨ Features</h3>
+                    <ul class="feature-list">
+                        <li>Automatic PII (Personally Identifiable Information) detection and masking</li>
+                        <li>Email category classification (Account, Technical, Billing, etc.)</li>
+                        <li>Entity-level position tracking</li>
+                        <li>Support for multiple PII types (names, emails, phones, DOB)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Documentation -->
+            <div class="section">
+                <h2>API Documentation</h2>
+
+                <div class="links">
+                    <h3>Available Endpoints</h3>
+
+                    <div class="link-item">
+                        <span class="link-name">📊 Dashboard (You are here)</span>
+                        <div class="link-desc">Interactive web interface to test email classification</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/" target="_blank">http://localhost:8000/</a>
+                        </div>
+                    </div>
+
+                    <div class="link-item">
+                        <span class="link-name">📚 Swagger UI Documentation</span>
+                        <div class="link-desc">Interactive API documentation - test endpoints directly</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>
+                        </div>
+                    </div>
+
+                    <div class="link-item">
+                        <span class="link-name">📖 ReDoc Alternative Documentation</span>
+                        <div class="link-desc">Beautiful alternative API documentation format</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/redoc" target="_blank">http://localhost:8000/redoc</a>
+                        </div>
+                    </div>
+
+                    <div class="link-item">
+                        <span class="link-name">❤️ Health Check</span>
+                        <div class="link-desc">Check if API server is running</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a>
+                        </div>
+                    </div>
+
+                    <div class="link-item">
+                        <span class="link-name">⚙️ OpenAPI Schema</span>
+                        <div class="link-desc">Machine-readable API specification (JSON format)</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/openapi.json" target="_blank">http://localhost:8000/openapi.json</a>
+                        </div>
+                    </div>
+
+                    <div class="link-item">
+                        <span class="link-name">ℹ️ API Info</span>
+                        <div class="link-desc">API metadata and endpoint information</div>
+                        <div class="link-url">
+                            <a href="http://localhost:8000/api/info" target="_blank">http://localhost:8000/api/info</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="links" style="margin-top: 20px;">
+                    <h3>Quick Start Commands</h3>
+
+                    <p style="color: #666; margin-bottom: 15px;">Classify email via terminal:</p>
+
+                    <div class="link-url" style="background: #1e1e1e; color: #d4d4d4; padding: 15px; margin-bottom: 15px;">curl -X POST "http://localhost:8000/classify_email" \<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-H "Content-Type: application/json" \<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-d '{"email_body": "Hello my name is John. Email: john@example.com"}'</div>
+                </div>
+
+                <div class="links" style="margin-top: 20px;">
+                    <h3>About PII Masking</h3>
+                    <p style="color: #666; line-height: 1.6;">
+                        PII (Personally Identifiable Information) masking replaces sensitive data with placeholders:
+                        <br><br>
+                        <strong>Before:</strong> Hello, my name is John Doe. Email: john@example.com<br>
+                        <strong>After:</strong> Hello, my name is [full_name]. Email: [email]
+                        <br><br>
+                        This helps protect user privacy while keeping emails readable for analysis.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function classifyEmail() {
+            const emailBody = document.getElementById('emailBody').value.trim();
+
+            // Validation
+            if (!emailBody) {
+                showError('Please enter an email body to classify.');
+                return;
+            }
+
+            if (emailBody.length < 10) {
+                showError('Email body must be at least 10 characters long.');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:8000/classify_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email_body: emailBody
+                    })
+                });
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showError(`Error: ${errorData.detail || 'Failed to classify email'}`);
+                    return;
+                }
+
+                const result = await response.json();
+                displayResults(result);
+                showSuccess('Email classified successfully!');
+
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showError(`Network error: ${error.message}`);
+            }
+        }
+
+        function displayResults(result) {
+            // Category
+            document.getElementById('resultCategory').textContent = result.category_of_the_email || 'Unknown';
+
+            // Original Email
+            document.getElementById('resultOriginal').textContent = result.input_email_body;
+
+            // Masked Email
+            document.getElementById('resultMasked').textContent = result.masked_email;
+
+            // Entities
+            const entitiesDiv = document.getElementById('resultEntities');
+            entitiesDiv.innerHTML = '';
+
+            if (result.list_of_masked_entities && result.list_of_masked_entities.length > 0) {
+                result.list_of_masked_entities.forEach(entity => {
+                    const entityDiv = document.createElement('div');
+                    entityDiv.style.marginBottom = '8px';
+                    entityDiv.innerHTML = `
+                        <span class="entity-tag">${entity.classification}</span>
+                        <span class="entity-value">${entity.entity}</span>
+                        <span style="color: #999; font-size: 12px;">at position [${entity.position[0]}, ${entity.position[1]}]</span>
+                    `;
+                    entitiesDiv.appendChild(entityDiv);
+                });
+            } else {
+                entitiesDiv.textContent = 'No entities detected.';
+            }
+
+            // Stats
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <div class="stat-box">
+                    <div class="stat-number">${result.list_of_masked_entities ? result.list_of_masked_entities.length : 0}</div>
+                    <div class="stat-label">Entities Found</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">${result.input_email_body ? result.input_email_body.length : 0}</div>
+                    <div class="stat-label">Characters</div>
+                </div>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Allow Ctrl+Enter to submit
+        document.getElementById('emailBody').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                classifyEmail();
+            }
+        });
+    </script>
+</body>
+</html>

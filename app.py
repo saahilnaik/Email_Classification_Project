@@ -3,6 +3,7 @@ import logging.handlers
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from utils.pipeline import classify_email
 from config import API_HOST, API_PORT, API_RELOAD, LOG_LEVEL, LOG_FORMAT, LOG_FILE
@@ -76,7 +77,25 @@ def classify(email: EmailRequest):
 
 @app.get("/")
 def root():
-    """Root endpoint with API information."""
+    """Root endpoint - serves the interactive dashboard for email classification testing."""
+    html_file = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    if os.path.exists(html_file):
+        return FileResponse(html_file, media_type="text/html")
+    else:
+        # Fallback if HTML file not found
+        return {
+            "error": "Dashboard not found",
+            "message": "HTML dashboard file is missing",
+            "fallback_endpoints": {
+                "GET /docs": "Swagger UI API Documentation",
+                "GET /redoc": "ReDoc API Documentation",
+                "GET /api/info": "API Information and Metadata"
+            }
+        }
+
+@app.get("/api/info")
+def api_info():
+    """API information and metadata endpoint."""
     from config import MODEL_TYPE
     from utils.pipeline import baseline_model, bert_model
 
@@ -87,25 +106,27 @@ def root():
         model_status = "loaded" if bert_model is not None else "not loaded"
 
     return {
-        "message": "Email Classification API is running!",
+        "name": "Email Classification API",
         "version": "1.0.0",
+        "description": "Classifies support emails while masking PII",
         "model": {
             "type": MODEL_TYPE,
             "status": model_status
         },
         "endpoints": {
-            "GET /": "This information page",
-            "GET /health": "Health check",
-            "POST /classify_email": "Classify email and mask PII",
-            "GET /docs": "Interactive API documentation (Swagger UI)",
-            "GET /redoc": "Alternative API documentation",
-            "GET /openapi.json": "OpenAPI schema"
+            "GET /": "Interactive dashboard for testing emails (THE MAIN PAGE)",
+            "GET /docs": "Swagger UI - Interactive API documentation",
+            "GET /redoc": "ReDoc - Beautiful alternative API documentation",
+            "GET /health": "Health check endpoint",
+            "GET /api/info": "API information and metadata (this page)",
+            "GET /openapi.json": "OpenAPI schema in JSON format",
+            "POST /classify_email": "Classify email and mask PII"
         },
-        "usage": {
-            "local_access": f"http://localhost:{API_PORT}",
-            "network_access": f"http://YOUR_IP:{API_PORT}",
-            "docs": f"http://localhost:{API_PORT}/docs",
-            "test_email": f"POST to http://localhost:{API_PORT}/classify_email"
+        "access_urls": {
+            "dashboard": f"http://localhost:{API_PORT}",
+            "swagger_docs": f"http://localhost:{API_PORT}/docs",
+            "redoc_docs": f"http://localhost:{API_PORT}/redoc",
+            "network_access": f"http://YOUR_DEVICE_IP:{API_PORT}"
         }
     }
 
@@ -115,9 +136,10 @@ def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    logger.info("="*60)
-    logger.info(f"SERVER BINDING: {API_HOST}:{API_PORT} (listening on all interfaces)")
-    logger.info("="*60)
+    logger.info("="*70)
+    logger.info("Email Classification API - Starting Server")
+    logger.info("="*70)
+    logger.info(f"Server Binding: {API_HOST}:{API_PORT} (listening on all interfaces)")
 
     # Test model loading before starting server
     try:
@@ -129,32 +151,56 @@ if __name__ == "__main__":
         elif MODEL_TYPE == "bert" and (bert_model is None):
             logger.error("BERT model failed to load. Please check model files.")
             exit(1)
-        logger.info(f"Model loaded successfully: {MODEL_TYPE}")
+        logger.info(f"Model Loaded: {MODEL_TYPE}")
     except Exception as e:
         logger.error(f"Model loading error: {e}")
         exit(1)
 
-    logger.info("ACCESS URLs:")
-    logger.info(f"  Local:     http://localhost:{API_PORT}")
-    logger.info(f"  Local:     http://127.0.0.1:{API_PORT}")
-
+    logger.info("="*70)
+    logger.info("IMPORTANT: Access the following URLs in your browser:")
+    logger.info("="*70)
+    
+    logger.info("")
+    logger.info("1. MAIN DASHBOARD (Test your emails here):")
+    logger.info(f"   --> http://localhost:{API_PORT}")
+    logger.info(f"   --> http://127.0.0.1:{API_PORT}")
+    logger.info("   This is your testing interface with a beautiful UI.")
+    
     # Get local IP for network access instructions
     import socket
     try:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
-        logger.info(f"  Network:   http://{local_ip}:{API_PORT}")
+        logger.info(f"   --> http://{local_ip}:{API_PORT} (Network access)")
     except Exception:
-        logger.info(f"  Network:   http://YOUR_IP:{API_PORT}")
+        logger.info(f"   --> http://YOUR_IP:{API_PORT} (Network access)")
 
-    logger.info("="*60)
-    logger.info("API Documentation:")
-    logger.info(f"  Swagger UI: http://localhost:{API_PORT}/docs")
-    logger.info(f"  ReDoc:      http://localhost:{API_PORT}/redoc")
-    logger.info("="*60)
+    logger.info("")
+    logger.info("2. SWAGGER UI DOCUMENTATION (Interactive API docs):")
+    logger.info(f"   --> http://localhost:{API_PORT}/docs")
+    logger.info("   Test API endpoints directly and read parameter details.")
+    
+    logger.info("")
+    logger.info("3. REDOC DOCUMENTATION (Alternative beautiful docs):")
+    logger.info(f"   --> http://localhost:{API_PORT}/redoc")
+    logger.info("   Alternative documentation format for the API.")
 
+    logger.info("")
+    logger.info("4. HEALTH CHECK:")
+    logger.info(f"   --> http://localhost:{API_PORT}/health")
+    logger.info("   Verify the server is running.")
+
+    logger.info("")
+    logger.info("5. API METADATA:")
+    logger.info(f"   --> http://localhost:{API_PORT}/api/info")
+    logger.info("   View all available endpoints and their descriptions.")
+
+    logger.info("="*70)
+    
     if API_HOST == "0.0.0.0":
-        logger.info("Note: Server binds to 0.0.0.0 (all interfaces) for network access")
-        logger.info("But you access it via localhost or your IP address, NOT 0.0.0.0")
+        logger.info("Note: Server binds to 0.0.0.0 to accept connections from all")
+        logger.info("      network interfaces. Access via localhost or your IP, NOT 0.0.0.0")
+    
+    logger.info("="*70)
 
     uvicorn.run("app:app", host=API_HOST, port=API_PORT, reload=API_RELOAD)
