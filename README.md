@@ -80,28 +80,28 @@ Email Classification Project/
    python -m spacy download en_core_web_sm
    ```
 
-## � Running the API Server
+## Running the API Server
 
 Start the FastAPI server:
 ```bash
 python app.py
 ```
 
-When the server starts, you'll see clear access URLs like:
+When the server starts, the app binds to localhost:
 ```
-🚀============================================================
-📡 SERVER BINDING: 0.0.0.0:8000 (listening on all interfaces)
-🚀============================================================
-✅ ACCESS URLs:
-   🏠 Local:     http://localhost:8000
-   🏠 Local:     http://127.0.0.1:8000
-   🌐 Network:   http://192.168.1.9:8000
-🚀============================================================
-📖 API Documentation:
-   📄 Swagger UI: http://localhost:8000/docs
-   📄 ReDoc:      http://localhost:8000/redoc
-🚀============================================================
+============================================================
+SERVER BINDING: 127.0.0.1:8000 (localhost)
+============================================================
+ACCESS URLs:
+   Local:    http://localhost:8000
+   Local:    http://127.0.0.1:8000
+Documentation (API docs):
+   Swagger UI: http://localhost:8000/docs
+   ReDoc:      http://localhost:8000/redoc
+============================================================
 ```
+
+> Note: The app does not bind to public interfaces by default in this configuration. If you want network access, set `API_HOST=0.0.0.0` in `.env`/`config.py`, but do not use `http://0.0.0.0:8000` in your browser.
 
 ## �🚨 CRITICAL: Correct URLs to Use
 
@@ -255,6 +255,10 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - **REST API**: FastAPI-based web service for easy integration
 - **Extensible**: Easy to add new PII patterns or classification categories
 - **Production Ready**: Includes proper error handling and logging
+
+## GitHub About (Copy for repository summary)
+
+A ready-to-run Python FastAPI project for email classification with robust PII masking and optional DistilBERT or SVM models. Includes a polished dashboard, API docs (/docs, /redoc), model training scripts, and extensive testing automation.
 
 ## Performance
 
