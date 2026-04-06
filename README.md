@@ -59,23 +59,27 @@ Email Classification Project/
 ## Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone <repository-url>
    cd email-classification-project
    ```
 
 2. **Create a virtual environment**:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Download spaCy model**:
+
    ```bash
    python -m spacy download en_core_web_sm
    ```
@@ -83,11 +87,13 @@ Email Classification Project/
 ## Running the API Server
 
 Start the FastAPI server:
+
 ```bash
 python app.py
 ```
 
 When the server starts, the app binds to localhost:
+
 ```
 ============================================================
 SERVER BINDING: 127.0.0.1:8000 (localhost)
@@ -108,11 +114,13 @@ Documentation (API docs):
 **❌ NEVER use this (INVALID):** `http://0.0.0.0:8000`
 **✅ Use these instead:**
 
-### Local Access (same device):
+### Local Access (same device)
+
 - `http://localhost:8000`
 - `http://127.0.0.1:8000`
 
-### Network Access (other devices):
+### Network Access (other devices)
+
 - `http://192.168.1.9:8000` (your current IP address)
 
 **Why 0.0.0.0 doesn't work:** `0.0.0.0` is the server's listening address (bind to all interfaces), not a browseable URL.
@@ -132,6 +140,7 @@ When you visit `http://localhost:8000`, you'll see an overview of all available 
 **POST** `/classify_email`
 
 **Request Body**:
+
 ```json
 {
   "email_body": "Hello, my name is John Doe. My email is johndoe@example.com, phone: 9876543210. DOB is 01/01/1990."
@@ -139,6 +148,7 @@ When you visit `http://localhost:8000`, you'll see an overview of all available 
 ```
 
 **Response**:
+
 ```json
 {
   "input_email_body": "Hello, my name is John Doe. My email is johndoe@example.com, phone: 9876543210. DOB is 01/01/1990.",
@@ -172,6 +182,7 @@ When you visit `http://localhost:8000`, you'll see an overview of all available 
 ### Model Configuration
 
 Edit `config.py` to switch between models:
+
 ```python
 MODEL_TYPE = "baseline"  # Use SVM + TF-IDF
 # MODEL_TYPE = "bert"    # Use DistilBERT
@@ -189,11 +200,13 @@ The application uses the following configuration variables (defined in `config.p
 ### Training Scripts
 
 **Train Baseline Model**:
+
 ```bash
 python -c "from models.baseline_model import train_baseline_model; from data.prepare_data import load_and_prepare_data; df = load_and_prepare_data('data/support_emails.csv'); train_baseline_model(df)"
 ```
 
 **Train BERT Model**:
+
 ```bash
 python -c "from models.bert_model import train_bert_model; from data.prepare_data import load_and_prepare_data; df = load_and_prepare_data('data/support_emails.csv'); train_bert_model(df)"
 ```
@@ -201,7 +214,9 @@ python -c "from models.bert_model import train_bert_model; from data.prepare_dat
 ### API Testing
 
 #### Quick Test Script
+
 Run the comprehensive test script to verify everything is working:
+
 ```bash
 python test_api.py
 ```
@@ -211,6 +226,7 @@ This will test all endpoints including Swagger UI, email classification, and mod
 #### Manual Testing
 
 Run individual test scripts from the `notebooks/` directory:
+
 ```bash
 python notebooks/test_masking.py
 python notebooks/test_baseline_model.py
@@ -271,6 +287,7 @@ A ready-to-run Python FastAPI project for email classification with robust PII m
 If you're having trouble accessing from other devices, you may need to:
 
 **Windows Firewall:**
+
 1. Open Windows Defender Firewall
 2. Click "Advanced settings"
 3. Click "Inbound Rules" → "New Rule"
@@ -279,11 +296,13 @@ If you're having trouble accessing from other devices, you may need to:
 6. Name it "Email Classification API"
 
 **Or temporarily disable firewall for testing:**
+
 ```cmd
 netsh advfirewall set allprofiles state off
 ```
 
 **Re-enable firewall after testing:**
+
 ```cmd
 netsh advfirewall set allprofiles state on
 ```
